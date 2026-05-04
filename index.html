@@ -85,7 +85,7 @@
     }
     .qty-display { font-weight: bold; width: 25px; text-align: center; }
     
-    /* 資訊確認欄位 (Step 3 新增) */
+    /* 資訊確認欄位 */
     .info-confirm-box {
       background-color: #f9f9f9;
       border-left: 4px solid #ff7e67;
@@ -119,12 +119,17 @@
       <input type="text" id="senderName" placeholder="請輸入你的姓名">
     </div>
     <div class="form-group">
+      <label>你的系級</label>
+      <input type="text" id="senderDept" placeholder="例如：資管大二">
+    </div>
+    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
+    <div class="form-group">
       <label>對方的姓名</label>
       <input type="text" id="recipientName" placeholder="請輸入對方的姓名">
     </div>
     <div class="form-group">
       <label>對方的系級</label>
-      <input type="text" id="recipientDept" placeholder="例如：資管大二">
+      <input type="text" id="recipientDept" placeholder="例如：企管大一">
     </div>
     <button onclick="goToStep2()">下一步：挑選點心 👉</button>
   </div>
@@ -145,8 +150,7 @@
       <strong>收件系級：</strong> <span id="confirmDept"></span>
     </div>
 
-    <div id="cartContainer">
-      </div>
+    <div id="cartContainer"></div>
     
     <div class="checkout-bar">
       總金額：$<span id="totalPriceDisplay">0</span>
@@ -225,18 +229,16 @@
       document.getElementById(`qty_${id}`).innerText = newQty;
     }
 
-    // 前往第 3 步：更新明細與顯示個人資訊
     function goToStep3() {
-      // 1. 先抓取並顯示 Step 1 的資訊
       const sName = document.getElementById("senderName").value;
+      const sDept = document.getElementById("senderDept").value;
       const rName = document.getElementById("recipientName").value;
       const rDept = document.getElementById("recipientDept").value;
       
-      document.getElementById("confirmSender").innerText = sName;
+      document.getElementById("confirmSender").innerText = `${sName} (${sDept})`;
       document.getElementById("confirmRecipient").innerText = rName;
       document.getElementById("confirmDept").innerText = rDept;
 
-      // 2. 產出購物車明細
       const container = document.getElementById('cartContainer');
       container.innerHTML = '';
       let total = 0;
@@ -268,7 +270,10 @@
     }
 
     function goToStep2() {
-      if (!document.getElementById("senderName").value || !document.getElementById("recipientName").value || !document.getElementById("recipientDept").value) {
+      if (!document.getElementById("senderName").value || 
+          !document.getElementById("senderDept").value || 
+          !document.getElementById("recipientName").value || 
+          !document.getElementById("recipientDept").value) {
         alert("請填寫完整寄件資訊！"); return;
       }
       document.getElementById('step1').classList.add('hidden');
@@ -279,26 +284,31 @@
     function backToStep2() { document.getElementById('step3').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); }
 
     function submitOrder() {
-      let detailsArr = [];
-      let total = 0;
+      let itemsArray = [];
+      
       menuData.forEach(cat => {
         cat.items.forEach(item => {
-          if (cart[item.id] > 0) {
-            detailsArr.push(`${cat.category}(${item.name})x${cart[item.id]}`);
-            total += cart[item.id] * item.price;
+          const qty = cart[item.id];
+          if (qty > 0) {
+            itemsArray.push({
+              name: `${cat.category} (${item.name})`,
+              qty: qty,
+              subtotal: qty * item.price
+            });
           }
         });
       });
 
       const postData = {
         senderName: document.getElementById("senderName").value,
+        senderDept: document.getElementById("senderDept").value,
         recipientName: document.getElementById("recipientName").value,
         recipientDept: document.getElementById("recipientDept").value,
-        orderDetails: detailsArr.join(', '),
-        totalPrice: total
+        items: itemsArray
       };
 
-      const url = "https://script.google.com/macros/s/AKfycbzHr7nZXQqT8BHAsBT7pZUROG7He6z87y7opLnj1dRnQhbogfcRJlp5-cEldVC85dJY/exec";
+     const url = "https://script.google.com/macros/s/AKfycbwkECuu9uq9dttw5KIVdNqsJi0YnvecAifniW35E7Ff9MOxJyu4-iPI95aKe7Vb69uQhQ/exec";
+      
       const btn = document.getElementById("submitBtn");
       btn.innerText = "訂單傳送中... 🚀"; btn.disabled = true;
 
