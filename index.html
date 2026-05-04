@@ -169,6 +169,7 @@
   </div>
 
   <script>
+    // 菜單資料結構
     const menuData = [
       { category: '泡芙', items: [ { id: 'puff_ori', name: '原味', price: 30 }, { id: 'puff_cho', name: '巧克力', price: 30 }, { id: 'puff_mat', name: '抹茶', price: 35 }, { id: 'puff_str', name: '草莓', price: 35 } ] },
       { category: '檸檬塔', items: [ { id: 'lemon_tart', name: '原味', price: 40 } ] },
@@ -183,10 +184,12 @@
     let cart = {};
 
     function init() {
+      // 初始化購物車，所有品項數量設為 0
       menuData.forEach(cat => cat.items.forEach(item => cart[item.id] = 0));
       renderCategories();
     }
 
+    // 產生大框框分類卡片
     function renderCategories() {
       const container = document.getElementById('categoryContainer');
       container.innerHTML = '';
@@ -199,6 +202,7 @@
       });
     }
 
+    // 開啟選口味彈窗
     function openModal(categoryIndex) {
       const cat = menuData[categoryIndex];
       document.getElementById('modalTitle').innerText = cat.category;
@@ -229,6 +233,7 @@
       document.getElementById(`qty_${id}`).innerText = newQty;
     }
 
+    // 前往第 3 步：更新顯示資訊與訂單明細
     function goToStep3() {
       const sName = document.getElementById("senderName").value;
       const sDept = document.getElementById("senderDept").value;
@@ -274,7 +279,7 @@
           !document.getElementById("senderDept").value || 
           !document.getElementById("recipientName").value || 
           !document.getElementById("recipientDept").value) {
-        alert("請填寫完整寄件資訊！"); return;
+        alert("請填寫完整寄收件資訊！"); return;
       }
       document.getElementById('step1').classList.add('hidden');
       document.getElementById('step2').classList.remove('hidden');
@@ -283,31 +288,50 @@
     function goToStep1() { document.getElementById('step2').classList.add('hidden'); document.getElementById('step1').classList.remove('hidden'); }
     function backToStep2() { document.getElementById('step3').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); }
 
+    // 核心邏輯：將資料扁平化送出
     function submitOrder() {
-      let itemsArray = [];
-      
+      let totalQty = 0;
+      let totalPrice = 0;
+
       menuData.forEach(cat => {
         cat.items.forEach(item => {
           const qty = cart[item.id];
           if (qty > 0) {
-            itemsArray.push({
-              name: `${cat.category} (${item.name})`,
-              qty: qty,
-              subtotal: qty * item.price
-            });
+            totalQty += qty;
+            totalPrice += qty * item.price;
           }
         });
       });
 
+      // 準備要送給 GAS 的 JSON 物件 (對應 A-U 欄位)
       const postData = {
         senderName: document.getElementById("senderName").value,
         senderDept: document.getElementById("senderDept").value,
         recipientName: document.getElementById("recipientName").value,
         recipientDept: document.getElementById("recipientDept").value,
-        items: itemsArray
+        
+        // 14 個口味的個別數量
+        puff_ori: cart['puff_ori'],
+        puff_cho: cart['puff_cho'],
+        puff_mat: cart['puff_mat'],
+        puff_str: cart['puff_str'],
+        lemon_tart: cart['lemon_tart'],
+        croissant: cart['croissant'],
+        bagel_cho: cart['bagel_cho'],
+        bagel_cra: cart['bagel_cra'],
+        bread_cho: cart['bread_cho'],
+        fin_ori: cart['fin_ori'],
+        fin_cra: cart['fin_cra'],
+        mad_ori: cart['mad_ori'],
+        mad_cho: cart['mad_cho'],
+        jap_lemon: cart['jap_lemon'],
+        
+        totalCount: totalQty,
+        totalPrice: totalPrice
       };
 
-     const url = "https://script.google.com/macros/s/AKfycbwkECuu9uq9dttw5KIVdNqsJi0YnvecAifniW35E7Ff9MOxJyu4-iPI95aKe7Vb69uQhQ/exec";
+      // 你最新的 GAS URL
+      const url = "https://script.google.com/macros/s/AKfycbx8NAlTqOUC8C7BXDa0nlMo23Ua6o0XFZQn0IeQjSUUpIwvx4jDuAh8mRRcVw5Ok-YgFg/exec";
       
       const btn = document.getElementById("submitBtn");
       btn.innerText = "訂單傳送中... 🚀"; btn.disabled = true;
