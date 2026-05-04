@@ -26,7 +26,7 @@
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     input[type="text"] {
-      width: 100%; padding: 10px; border: 1px solid #ccc;
+      width: 100%; padding: 12px; border: 1px solid #ccc;
       border-radius: 6px; box-sizing: border-box; font-size: 16px;
     }
     
@@ -40,26 +40,26 @@
     button.secondary { background-color: #aaa; }
     button:disabled { background-color: #ccc; }
     
-    /* 大框框網格樣式 */
+    /* 調整：大框框改為單欄全寬 */
     .category-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      grid-template-columns: 1fr; /* 改為單欄，讓框框拉到最大 */
+      gap: 12px;
       margin-bottom: 20px;
     }
     .category-card {
       background-color: #fff8f5;
       border: 2px solid #ffd4c9;
       border-radius: 10px;
-      padding: 25px 10px;
+      padding: 20px;
       text-align: center;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       color: #d1563f;
       cursor: pointer;
       transition: transform 0.1s;
     }
-    .category-card:active { transform: scale(0.95); }
+    .category-card:active { transform: scale(0.98); }
     
     /* 彈出視窗樣式 */
     .modal-overlay {
@@ -74,7 +74,7 @@
     }
     .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 15px; text-align: center; }
     
-    /* 數量控制樣式 */
+    /* 數量控制 */
     .flavor-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 10px 0; border-bottom: 1px solid #eee;
@@ -85,21 +85,39 @@
     }
     .qty-display { font-weight: bold; width: 25px; text-align: center; }
     
-    /* 資訊確認欄位 */
-    .info-confirm-box {
-      background-color: #f9f9f9;
-      border-left: 4px solid #ff7e67;
-      padding: 12px;
+    /* 新增：愛心箭頭關係抬頭樣式 */
+    .relation-header {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px 10px;
+      background: linear-gradient(to bottom, #fffcfb, #fff);
+      border-radius: 10px;
       margin-bottom: 20px;
-      font-size: 15px;
-      line-height: 1.6;
+      border: 1px solid #ffe8e2;
     }
-    .info-confirm-box strong { color: #555; }
+    .relation-side {
+      flex: 1;
+      text-align: center;
+    }
+    .name-display { font-weight: bold; font-size: 18px; color: #d1563f; margin-bottom: 4px; }
+    .dept-display { font-size: 12px; color: #888; }
+    .heart-arrow {
+      font-size: 32px;
+      color: #ff7e67;
+      padding: 0 10px;
+      animation: heartbeat 1.5s infinite;
+    }
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
     
     /* 購物車確認清單 */
     .cart-item {
       display: flex; justify-content: space-between;
-      padding: 8px 0; border-bottom: 1px dashed #eee;
+      padding: 10px 0; border-bottom: 1px dashed #eee;
       font-size: 15px;
     }
     .checkout-bar {
@@ -129,7 +147,7 @@
     </div>
     <div class="form-group">
       <label>對方的系級</label>
-      <input type="text" id="recipientDept" placeholder="例如：企管大一">
+      <input type="text" id="recipientDept" placeholder="例如：機械大三">
     </div>
     <button onclick="goToStep2()">下一步：挑選點心 👉</button>
   </div>
@@ -144,10 +162,16 @@
   <div class="container hidden" id="step3">
     <h2>📋 確認訂單與資訊</h2>
     
-    <div class="info-confirm-box">
-      <strong>寄件人：</strong> <span id="confirmSender"></span><br>
-      <strong>收件人：</strong> <span id="confirmRecipient"></span><br>
-      <strong>收件系級：</strong> <span id="confirmDept"></span>
+    <div class="relation-header">
+      <div class="relation-side">
+        <div id="confirmSenderName" class="name-display"></div>
+        <div id="confirmSenderDept" class="dept-display"></div>
+      </div>
+      <div class="heart-arrow">💘</div>
+      <div class="relation-side">
+        <div id="confirmRecipientName" class="name-display"></div>
+        <div id="confirmRecipientDept" class="dept-display"></div>
+      </div>
     </div>
 
     <div id="cartContainer"></div>
@@ -169,7 +193,6 @@
   </div>
 
   <script>
-    // 菜單資料結構
     const menuData = [
       { category: '泡芙', items: [ { id: 'puff_ori', name: '原味', price: 30 }, { id: 'puff_cho', name: '巧克力', price: 30 }, { id: 'puff_mat', name: '抹茶', price: 35 }, { id: 'puff_str', name: '草莓', price: 35 } ] },
       { category: '檸檬塔', items: [ { id: 'lemon_tart', name: '原味', price: 40 } ] },
@@ -184,12 +207,10 @@
     let cart = {};
 
     function init() {
-      // 初始化購物車，所有品項數量設為 0
       menuData.forEach(cat => cat.items.forEach(item => cart[item.id] = 0));
       renderCategories();
     }
 
-    // 產生大框框分類卡片
     function renderCategories() {
       const container = document.getElementById('categoryContainer');
       container.innerHTML = '';
@@ -202,7 +223,6 @@
       });
     }
 
-    // 開啟選口味彈窗
     function openModal(categoryIndex) {
       const cat = menuData[categoryIndex];
       document.getElementById('modalTitle').innerText = cat.category;
@@ -233,16 +253,20 @@
       document.getElementById(`qty_${id}`).innerText = newQty;
     }
 
-    // 前往第 3 步：更新顯示資訊與訂單明細
+    // 更新：抓取資料並填入愛心關係抬頭
     function goToStep3() {
       const sName = document.getElementById("senderName").value;
       const sDept = document.getElementById("senderDept").value;
       const rName = document.getElementById("recipientName").value;
       const rDept = document.getElementById("recipientDept").value;
       
-      document.getElementById("confirmSender").innerText = `${sName} (${sDept})`;
-      document.getElementById("confirmRecipient").innerText = rName;
-      document.getElementById("confirmDept").innerText = rDept;
+      // 填入左側 (寄件人)
+      document.getElementById("confirmSenderName").innerText = sName;
+      document.getElementById("confirmSenderDept").innerText = sDept;
+      
+      // 填入右側 (收件人)
+      document.getElementById("confirmRecipientName").innerText = rName;
+      document.getElementById("confirmRecipientDept").innerText = rDept;
 
       const container = document.getElementById('cartContainer');
       container.innerHTML = '';
@@ -279,7 +303,7 @@
           !document.getElementById("senderDept").value || 
           !document.getElementById("recipientName").value || 
           !document.getElementById("recipientDept").value) {
-        alert("請填寫完整寄收件資訊！"); return;
+        alert("請填寫完整資訊！"); return;
       }
       document.getElementById('step1').classList.add('hidden');
       document.getElementById('step2').classList.remove('hidden');
@@ -288,7 +312,6 @@
     function goToStep1() { document.getElementById('step2').classList.add('hidden'); document.getElementById('step1').classList.remove('hidden'); }
     function backToStep2() { document.getElementById('step3').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); }
 
-    // 核心邏輯：將資料扁平化送出
     function submitOrder() {
       let totalQty = 0;
       let totalPrice = 0;
@@ -303,35 +326,19 @@
         });
       });
 
-      // 準備要送給 GAS 的 JSON 物件 (對應 A-U 欄位)
       const postData = {
         senderName: document.getElementById("senderName").value,
         senderDept: document.getElementById("senderDept").value,
         recipientName: document.getElementById("recipientName").value,
         recipientDept: document.getElementById("recipientDept").value,
-        
-        // 14 個口味的個別數量
-        puff_ori: cart['puff_ori'],
-        puff_cho: cart['puff_cho'],
-        puff_mat: cart['puff_mat'],
-        puff_str: cart['puff_str'],
-        lemon_tart: cart['lemon_tart'],
-        croissant: cart['croissant'],
-        bagel_cho: cart['bagel_cho'],
-        bagel_cra: cart['bagel_cra'],
-        bread_cho: cart['bread_cho'],
-        fin_ori: cart['fin_ori'],
-        fin_cra: cart['fin_cra'],
-        mad_ori: cart['mad_ori'],
-        mad_cho: cart['mad_cho'],
+        puff_ori: cart['puff_ori'], puff_cho: cart['puff_cho'], puff_mat: cart['puff_mat'], puff_str: cart['puff_str'],
+        lemon_tart: cart['lemon_tart'], croissant: cart['croissant'], bagel_cho: cart['bagel_cho'], bagel_cra: cart['bagel_cra'],
+        bread_cho: cart['bread_cho'], fin_ori: cart['fin_ori'], fin_cra: cart['fin_cra'], mad_ori: cart['mad_ori'], mad_cho: cart['mad_cho'],
         jap_lemon: cart['jap_lemon'],
-        
-        totalCount: totalQty,
-        totalPrice: totalPrice
+        totalCount: totalQty, totalPrice: totalPrice
       };
 
-      // 你最新的 GAS URL
-      const url = "https://script.google.com/macros/s/AKfycbzj5KGI_JWX47XAcroCR1bi75ugz-lsZq4eMVyj_zomNJKwTXFrlZ-oDDVhK24C0W7-0A/exec";
+      const url = "https://script.google.com/macros/s/AKfycbx8NAlTqOUC8C7BXDa0nlMo23Ua6o0XFZQn0IeQjSUUpIwvx4jDuAh8mRRcVw5Ok-YgFg/exec";
       
       const btn = document.getElementById("submitBtn");
       btn.innerText = "訂單傳送中... 🚀"; btn.disabled = true;
