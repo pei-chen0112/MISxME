@@ -121,17 +121,17 @@
   <div class="container" id="step1">
     <h2>💌 傳情寄件資訊</h2>
     <div class="form-group"><label>你的姓名</label><input type="text" id="senderName" placeholder="請輸入你的姓名"></div>
-    <div class="form-group"><label>你的系級</label><input type="text" id="senderDept" placeholder="例如：資管二"></div>
+    <div class="form-group"><label>你的系級</label><input type="text" id="senderDept" placeholder="例如：資管一"></div>
     <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
     <div class="form-group"><label>對方的姓名</label><input type="text" id="recipientName" placeholder="請輸入對方的姓名"></div>
-    <div class="form-group"><label>對方的系級</label><input type="text" id="recipientDept" placeholder="例如：機械三"></div>
-    <button onclick="goToStep2()">下一步：挑選點心 👉</button>
+    <div class="form-group"><label>對方的系級</label><input type="text" id="recipientDept" placeholder="例如：機械二"></div>
+    <button onclick="goToStep2()">下一步 ▶︎▶︎ 挑選點心 </button>
   </div>
 
   <div class="container hidden" id="step2">
     <h2>🥐 選擇傳情品項</h2>
     <div class="category-grid" id="categoryContainer"></div>
-    <button class="secondary" onclick="goToStep1()">👈 回上一步</button>
+    <button class="secondary" onclick="goToStep1()">回上一步</button>
     <button onclick="goToStep3()" style="background-color: #4CAF50;">前往確認訂單 🛒</button>
   </div>
 
@@ -144,8 +144,8 @@
     </div>
     <div id="cartContainer"></div>
     <div class="checkout-bar">總金額：$<span id="totalPriceDisplay">0</span></div>
-    <button class="secondary" onclick="backToStep2()">👈 繼續選購</button>
-    <button id="submitBtn" onclick="submitOrder()">確認資訊無誤，送出訂單 🚀</button>
+    <button class="secondary" onclick="backToStep2()">返回繼續選購</button>
+    <button id="submitBtn" onclick="submitOrder()">確認資訊無誤，送出訂單 ✈</button>
   </div>
 
   <div class="modal-overlay hidden" id="flavorModal">
