@@ -22,7 +22,6 @@
     }
     h2 { text-align: center; color: #4a4a4a; }
     
-    /* 輸入框樣式 */
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     input[type="text"] {
@@ -30,7 +29,6 @@
       border-radius: 6px; box-sizing: border-box; font-size: 16px;
     }
     
-    /* 按鈕樣式 */
     button {
       width: 100%; padding: 12px; background-color: #ff7e67;
       color: white; border: none; border-radius: 6px;
@@ -40,10 +38,10 @@
     button.secondary { background-color: #aaa; }
     button:disabled { background-color: #ccc; }
     
-    /* 調整：大框框改為單欄全寬 */
+    /* 全寬大框框樣式 */
     .category-grid {
       display: grid;
-      grid-template-columns: 1fr; /* 改為單欄，讓框框拉到最大 */
+      grid-template-columns: 1fr;
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -61,7 +59,6 @@
     }
     .category-card:active { transform: scale(0.98); }
     
-    /* 彈出視窗樣式 */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
@@ -74,7 +71,6 @@
     }
     .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 15px; text-align: center; }
     
-    /* 數量控制 */
     .flavor-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 10px 0; border-bottom: 1px solid #eee;
@@ -85,7 +81,7 @@
     }
     .qty-display { font-weight: bold; width: 25px; text-align: center; }
     
-    /* 新增：愛心箭頭關係抬頭樣式 */
+    /* 愛心箭頭關係圖 */
     .relation-header {
       display: flex;
       justify-content: space-around;
@@ -96,16 +92,11 @@
       margin-bottom: 20px;
       border: 1px solid #ffe8e2;
     }
-    .relation-side {
-      flex: 1;
-      text-align: center;
-    }
+    .relation-side { flex: 1; text-align: center; }
     .name-display { font-weight: bold; font-size: 18px; color: #d1563f; margin-bottom: 4px; }
     .dept-display { font-size: 12px; color: #888; }
     .heart-arrow {
-      font-size: 32px;
-      color: #ff7e67;
-      padding: 0 10px;
+      font-size: 32px; color: #ff7e67; padding: 0 10px;
       animation: heartbeat 1.5s infinite;
     }
     @keyframes heartbeat {
@@ -114,17 +105,14 @@
       100% { transform: scale(1); }
     }
     
-    /* 購物車確認清單 */
     .cart-item {
       display: flex; justify-content: space-between;
-      padding: 10px 0; border-bottom: 1px dashed #eee;
-      font-size: 15px;
+      padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 15px;
     }
     .checkout-bar {
       margin-top: 15px; padding-top: 10px; border-top: 2px solid #ccc;
       text-align: right; font-size: 20px; font-weight: bold; color: #d1563f;
     }
-    
     .hidden { display: none !important; }
   </style>
 </head>
@@ -132,23 +120,11 @@
 
   <div class="container" id="step1">
     <h2>💌 傳情寄件資訊</h2>
-    <div class="form-group">
-      <label>你的姓名</label>
-      <input type="text" id="senderName" placeholder="請輸入你的姓名">
-    </div>
-    <div class="form-group">
-      <label>你的系級</label>
-      <input type="text" id="senderDept" placeholder="例如：資管大二">
-    </div>
+    <div class="form-group"><label>你的姓名</label><input type="text" id="senderName" placeholder="請輸入你的姓名"></div>
+    <div class="form-group"><label>你的系級</label><input type="text" id="senderDept" placeholder="例如：資管二"></div>
     <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
-    <div class="form-group">
-      <label>對方的姓名</label>
-      <input type="text" id="recipientName" placeholder="請輸入對方的姓名">
-    </div>
-    <div class="form-group">
-      <label>對方的系級</label>
-      <input type="text" id="recipientDept" placeholder="例如：機械大三">
-    </div>
+    <div class="form-group"><label>對方的姓名</label><input type="text" id="recipientName" placeholder="請輸入對方的姓名"></div>
+    <div class="form-group"><label>對方的系級</label><input type="text" id="recipientDept" placeholder="例如：機械三"></div>
     <button onclick="goToStep2()">下一步：挑選點心 👉</button>
   </div>
 
@@ -161,25 +137,13 @@
 
   <div class="container hidden" id="step3">
     <h2>📋 確認訂單與資訊</h2>
-    
     <div class="relation-header">
-      <div class="relation-side">
-        <div id="confirmSenderName" class="name-display"></div>
-        <div id="confirmSenderDept" class="dept-display"></div>
-      </div>
+      <div class="relation-side"><div id="confirmSenderName" class="name-display"></div><div id="confirmSenderDept" class="dept-display"></div></div>
       <div class="heart-arrow">💘</div>
-      <div class="relation-side">
-        <div id="confirmRecipientName" class="name-display"></div>
-        <div id="confirmRecipientDept" class="dept-display"></div>
-      </div>
+      <div class="relation-side"><div id="confirmRecipientName" class="name-display"></div><div id="confirmRecipientDept" class="dept-display"></div></div>
     </div>
-
     <div id="cartContainer"></div>
-    
-    <div class="checkout-bar">
-      總金額：$<span id="totalPriceDisplay">0</span>
-    </div>
-    
+    <div class="checkout-bar">總金額：$<span id="totalPriceDisplay">0</span></div>
     <button class="secondary" onclick="backToStep2()">👈 繼續選購</button>
     <button id="submitBtn" onclick="submitOrder()">確認資訊無誤，送出訂單 🚀</button>
   </div>
@@ -253,56 +217,37 @@
       document.getElementById(`qty_${id}`).innerText = newQty;
     }
 
-    // 更新：抓取資料並填入愛心關係抬頭
     function goToStep3() {
-      const sName = document.getElementById("senderName").value;
-      const sDept = document.getElementById("senderDept").value;
-      const rName = document.getElementById("recipientName").value;
-      const rDept = document.getElementById("recipientDept").value;
-      
-      // 填入左側 (寄件人)
-      document.getElementById("confirmSenderName").innerText = sName;
-      document.getElementById("confirmSenderDept").innerText = sDept;
-      
-      // 填入右側 (收件人)
-      document.getElementById("confirmRecipientName").innerText = rName;
-      document.getElementById("confirmRecipientDept").innerText = rDept;
+      document.getElementById("confirmSenderName").innerText = document.getElementById("senderName").value;
+      document.getElementById("confirmSenderDept").innerText = document.getElementById("senderDept").value;
+      document.getElementById("confirmRecipientName").innerText = document.getElementById("recipientName").value;
+      document.getElementById("confirmRecipientDept").innerText = document.getElementById("recipientDept").value;
 
       const container = document.getElementById('cartContainer');
       container.innerHTML = '';
       let total = 0;
       let hasItems = false;
-
       menuData.forEach(cat => {
         cat.items.forEach(item => {
           const qty = cart[item.id];
           if (qty > 0) {
             hasItems = true;
-            const subtotal = qty * item.price;
-            total += subtotal;
+            total += qty * item.price;
             const div = document.createElement('div');
             div.className = 'cart-item';
-            div.innerHTML = `<span>${cat.category}-${item.name} x ${qty}</span><span>$${subtotal}</span>`;
+            div.innerHTML = `<span>${cat.category}-${item.name} x ${qty}</span><span>$${qty * item.price}</span>`;
             container.appendChild(div);
           }
         });
       });
-
-      if (!hasItems) {
-        alert("請至少選擇一項品項喔！");
-        return;
-      }
-
+      if (!hasItems) { alert("請至少挑選一項點心喔！"); return; }
       document.getElementById('totalPriceDisplay').innerText = total;
       document.getElementById('step2').classList.add('hidden');
       document.getElementById('step3').classList.remove('hidden');
     }
 
     function goToStep2() {
-      if (!document.getElementById("senderName").value || 
-          !document.getElementById("senderDept").value || 
-          !document.getElementById("recipientName").value || 
-          !document.getElementById("recipientDept").value) {
+      if (!document.getElementById("senderName").value || !document.getElementById("senderDept").value || !document.getElementById("recipientName").value || !document.getElementById("recipientDept").value) {
         alert("請填寫完整資訊！"); return;
       }
       document.getElementById('step1').classList.add('hidden');
@@ -312,17 +257,15 @@
     function goToStep1() { document.getElementById('step2').classList.add('hidden'); document.getElementById('step1').classList.remove('hidden'); }
     function backToStep2() { document.getElementById('step3').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); }
 
+    // 前端雙重保險邏輯：送出前把 0 轉成空字串
+    function check(val) { return val > 0 ? val : ""; }
+
     function submitOrder() {
       let totalQty = 0;
       let totalPrice = 0;
-
       menuData.forEach(cat => {
         cat.items.forEach(item => {
-          const qty = cart[item.id];
-          if (qty > 0) {
-            totalQty += qty;
-            totalPrice += qty * item.price;
-          }
+          if (cart[item.id] > 0) { totalQty += cart[item.id]; totalPrice += cart[item.id] * item.price; }
         });
       });
 
@@ -331,13 +274,17 @@
         senderDept: document.getElementById("senderDept").value,
         recipientName: document.getElementById("recipientName").value,
         recipientDept: document.getElementById("recipientDept").value,
-        puff_ori: cart['puff_ori'], puff_cho: cart['puff_cho'], puff_mat: cart['puff_mat'], puff_str: cart['puff_str'],
-        lemon_tart: cart['lemon_tart'], croissant: cart['croissant'], bagel_cho: cart['bagel_cho'], bagel_cra: cart['bagel_cra'],
-        bread_cho: cart['bread_cho'], fin_ori: cart['fin_ori'], fin_cra: cart['fin_cra'], mad_ori: cart['mad_ori'], mad_cho: cart['mad_cho'],
-        jap_lemon: cart['jap_lemon'],
+        puff_ori: check(cart['puff_ori']), puff_cho: check(cart['puff_cho']),
+        puff_mat: check(cart['puff_mat']), puff_str: check(cart['puff_str']),
+        lemon_tart: check(cart['lemon_tart']), croissant: check(cart['croissant']),
+        bagel_cho: check(cart['bagel_cho']), bagel_cra: check(cart['bagel_cra']),
+        bread_cho: check(cart['bread_cho']), fin_ori: check(cart['fin_ori']),
+        fin_cra: check(cart['fin_cra']), mad_ori: check(cart['mad_ori']),
+        mad_cho: check(cart['mad_cho']), jap_lemon: check(cart['jap_lemon']),
         totalCount: totalQty, totalPrice: totalPrice
       };
 
+      // ⚠️ 請確保這是你最新「新增部署」取得的網址
       const url = "https://script.google.com/macros/s/AKfycbx8NAlTqOUC8C7BXDa0nlMo23Ua6o0XFZQn0IeQjSUUpIwvx4jDuAh8mRRcVw5Ok-YgFg/exec";
       
       const btn = document.getElementById("submitBtn");
@@ -350,14 +297,12 @@
       })
       .then(res => res.json())
       .then(result => {
-        if (result.status === "success") {
-          alert("傳情訂單已成功送出！"); window.location.reload(); 
-        } else { alert("寫入失敗：" + result.message); }
+        if (result.status === "success") { alert("傳情訂單已成功送出！"); window.location.reload(); }
+        else { alert("寫入失敗：" + result.message); }
       })
       .catch(error => { alert("網路錯誤，請稍後再試。"); console.error(error); })
       .finally(() => { btn.innerText = "確認資訊無誤，送出訂單 🚀"; btn.disabled = false; });
     }
-
     init();
   </script>
 </body>
