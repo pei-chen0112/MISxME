@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>連接 Google Sheet 測試</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input { display: block; margin-bottom: 10px; padding: 8px; width: 200px; }
+    button { padding: 10px 15px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>輸入資料傳送到 Google Sheet</h2>
+  
+  <input type="text" id="name" placeholder="請輸入姓名">
+  <input type="text" id="phone" placeholder="請輸入電話">
+  <button id="submitBtn" onclick="sendData()">送出資料</button>
+
+  <script>
+    function sendData() {
+      // 1. 抓取輸入框的資料
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      
+      // 防呆檢查
+      if (!name || !phone) {
+        alert("請填寫完整資料！");
+        return;
+      }
+
+      // 2. 準備要傳送的資料物件
+      const data = {
+        name: name,
+        phone: phone
+      };
+
+      // 3. 這是你的專屬 GAS 網址！
+      const url = "https://script.google.com/macros/s/AKfycbz3NydvAFlSYlD4Fl12RuVQiIO9JS3PGVkAj2yWgxgffBevz_p1E2X6kIPLxrWXxivp0A/exec";
+
+      const btn = document.getElementById("submitBtn");
+      btn.innerText = "傳送中...";
+      btn.disabled = true; // 避免重複點擊
+
+      // 4. 使用 fetch 發送 API 請求
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8", 
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === "success") {
+          alert("資料成功寫入 Google Sheet！");
+          // 清空輸入框
+          document.getElementById("name").value = "";
+          document.getElementById("phone").value = "";
+        } else {
+          alert("寫入失敗：" + result.message);
+        }
+      })
+      .catch(error => {
+        alert("發生錯誤，請檢查網路狀態或瀏覽器 Console。");
+        console.error(error);
+      })
+      .finally(() => {
+        btn.innerText = "送出資料";
+        btn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
