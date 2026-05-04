@@ -3,73 +3,321 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>連接 Google Sheet 測試</title>
+  <title>傳情點餐系統</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input { display: block; margin-bottom: 10px; padding: 8px; width: 200px; }
-    button { padding: 10px 15px; cursor: pointer; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; color: #4a4a4a; }
+    
+    /* 輸入框樣式 */
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input[type="text"] {
+      width: 100%; padding: 10px; border: 1px solid #ccc;
+      border-radius: 6px; box-sizing: border-box; font-size: 16px;
+    }
+    
+    /* 按鈕樣式 */
+    button {
+      width: 100%; padding: 12px; background-color: #ff7e67;
+      color: white; border: none; border-radius: 6px;
+      font-size: 16px; font-weight: bold; cursor: pointer;
+      margin-top: 10px;
+    }
+    button.secondary { background-color: #aaa; }
+    button:disabled { background-color: #ccc; }
+    
+    /* 大框框網格樣式 */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .category-card {
+      background-color: #fff8f5;
+      border: 2px solid #ffd4c9;
+      border-radius: 10px;
+      padding: 25px 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #d1563f;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .category-card:active { transform: scale(0.95); }
+    
+    /* 彈出視窗樣式 */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white; padding: 25px; border-radius: 12px;
+      width: 90%; max-width: 400px;
+    }
+    .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 15px; text-align: center; }
+    
+    /* 數量控制樣式 */
+    .flavor-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #eee;
+    }
+    .qty-btn {
+      width: 30px; height: 30px; border-radius: 50%; padding: 0;
+      background-color: #eee; color: #333; margin: 0 10px;
+    }
+    .qty-display { font-weight: bold; width: 25px; text-align: center; }
+    
+    /* 資訊確認欄位 (Step 3 新增) */
+    .info-confirm-box {
+      background-color: #f9f9f9;
+      border-left: 4px solid #ff7e67;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .info-confirm-box strong { color: #555; }
+    
+    /* 購物車確認清單 */
+    .cart-item {
+      display: flex; justify-content: space-between;
+      padding: 8px 0; border-bottom: 1px dashed #eee;
+      font-size: 15px;
+    }
+    .checkout-bar {
+      margin-top: 15px; padding-top: 10px; border-top: 2px solid #ccc;
+      text-align: right; font-size: 20px; font-weight: bold; color: #d1563f;
+    }
+    
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <h2>輸入資料傳送到 Google Sheet</h2>
-  
-  <input type="text" id="name" placeholder="請輸入姓名">
-  <input type="text" id="phone" placeholder="請輸入電話">
-  <button id="submitBtn" onclick="sendData()">送出資料</button>
+
+  <div class="container" id="step1">
+    <h2>💌 傳情寄件資訊</h2>
+    <div class="form-group">
+      <label>你的姓名</label>
+      <input type="text" id="senderName" placeholder="請輸入你的姓名">
+    </div>
+    <div class="form-group">
+      <label>對方的姓名</label>
+      <input type="text" id="recipientName" placeholder="請輸入對方的姓名">
+    </div>
+    <div class="form-group">
+      <label>對方的系級</label>
+      <input type="text" id="recipientDept" placeholder="例如：資管大二">
+    </div>
+    <button onclick="goToStep2()">下一步：挑選點心 👉</button>
+  </div>
+
+  <div class="container hidden" id="step2">
+    <h2>🥐 選擇傳情品項</h2>
+    <div class="category-grid" id="categoryContainer"></div>
+    <button class="secondary" onclick="goToStep1()">👈 回上一步</button>
+    <button onclick="goToStep3()" style="background-color: #4CAF50;">前往確認訂單 🛒</button>
+  </div>
+
+  <div class="container hidden" id="step3">
+    <h2>📋 確認訂單與資訊</h2>
+    
+    <div class="info-confirm-box">
+      <strong>寄件人：</strong> <span id="confirmSender"></span><br>
+      <strong>收件人：</strong> <span id="confirmRecipient"></span><br>
+      <strong>收件系級：</strong> <span id="confirmDept"></span>
+    </div>
+
+    <div id="cartContainer">
+      </div>
+    
+    <div class="checkout-bar">
+      總金額：$<span id="totalPriceDisplay">0</span>
+    </div>
+    
+    <button class="secondary" onclick="backToStep2()">👈 繼續選購</button>
+    <button id="submitBtn" onclick="submitOrder()">確認資訊無誤，送出訂單 🚀</button>
+  </div>
+
+  <div class="modal-overlay hidden" id="flavorModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalTitle">品項名稱</div>
+      <div id="flavorContainer"></div>
+      <button onclick="closeModal()" style="margin-top: 20px;">完成選擇 ✔️</button>
+    </div>
+  </div>
 
   <script>
-    function sendData() {
-      // 1. 抓取輸入框的資料
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
+    const menuData = [
+      { category: '泡芙', items: [ { id: 'puff_ori', name: '原味', price: 30 }, { id: 'puff_cho', name: '巧克力', price: 30 }, { id: 'puff_mat', name: '抹茶', price: 35 }, { id: 'puff_str', name: '草莓', price: 35 } ] },
+      { category: '檸檬塔', items: [ { id: 'lemon_tart', name: '原味', price: 40 } ] },
+      { category: '鹽可頌', items: [ { id: 'croissant', name: '原味', price: 50 } ] },
+      { category: '貝果', items: [ { id: 'bagel_cho', name: '巧克力', price: 70 }, { id: 'bagel_cra', name: '蔓越莓', price: 70 } ] },
+      { category: '歐式麵包', items: [ { id: 'bread_cho', name: '黑眼豆豆', price: 30 } ] },
+      { category: '費南雪', items: [ { id: 'fin_ori', name: '原味', price: 55 }, { id: 'fin_cra', name: '蔓越莓', price: 60 } ] },
+      { category: '瑪德蓮', items: [ { id: 'mad_ori', name: '原味', price: 55 }, { id: 'mad_cho', name: '巧克力', price: 60 } ] },
+      { category: '日式燒菓子', items: [ { id: 'jap_lemon', name: '檸檬', price: 70 } ] }
+    ];
+
+    let cart = {};
+
+    function init() {
+      menuData.forEach(cat => cat.items.forEach(item => cart[item.id] = 0));
+      renderCategories();
+    }
+
+    function renderCategories() {
+      const container = document.getElementById('categoryContainer');
+      container.innerHTML = '';
+      menuData.forEach((cat, index) => {
+        const div = document.createElement('div');
+        div.className = 'category-card';
+        div.innerText = cat.category;
+        div.onclick = () => openModal(index);
+        container.appendChild(div);
+      });
+    }
+
+    function openModal(categoryIndex) {
+      const cat = menuData[categoryIndex];
+      document.getElementById('modalTitle').innerText = cat.category;
+      const container = document.getElementById('flavorContainer');
+      container.innerHTML = '';
+      cat.items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'flavor-item';
+        div.innerHTML = `
+          <div><strong>${item.name}</strong> <small>($${item.price})</small></div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+            <span class="qty-display" id="qty_${item.id}">${cart[item.id]}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      document.getElementById('flavorModal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('flavorModal').classList.add('hidden'); }
+
+    function changeQty(id, change) {
+      let newQty = cart[id] + change;
+      if (newQty < 0) newQty = 0;
+      cart[id] = newQty;
+      document.getElementById(`qty_${id}`).innerText = newQty;
+    }
+
+    // 前往第 3 步：更新明細與顯示個人資訊
+    function goToStep3() {
+      // 1. 先抓取並顯示 Step 1 的資訊
+      const sName = document.getElementById("senderName").value;
+      const rName = document.getElementById("recipientName").value;
+      const rDept = document.getElementById("recipientDept").value;
       
-      // 防呆檢查
-      if (!name || !phone) {
-        alert("請填寫完整資料！");
+      document.getElementById("confirmSender").innerText = sName;
+      document.getElementById("confirmRecipient").innerText = rName;
+      document.getElementById("confirmDept").innerText = rDept;
+
+      // 2. 產出購物車明細
+      const container = document.getElementById('cartContainer');
+      container.innerHTML = '';
+      let total = 0;
+      let hasItems = false;
+
+      menuData.forEach(cat => {
+        cat.items.forEach(item => {
+          const qty = cart[item.id];
+          if (qty > 0) {
+            hasItems = true;
+            const subtotal = qty * item.price;
+            total += subtotal;
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `<span>${cat.category}-${item.name} x ${qty}</span><span>$${subtotal}</span>`;
+            container.appendChild(div);
+          }
+        });
+      });
+
+      if (!hasItems) {
+        alert("請至少選擇一項品項喔！");
         return;
       }
 
-      // 2. 準備要傳送的資料物件
-      const data = {
-        name: name,
-        phone: phone
+      document.getElementById('totalPriceDisplay').innerText = total;
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+    }
+
+    function goToStep2() {
+      if (!document.getElementById("senderName").value || !document.getElementById("recipientName").value || !document.getElementById("recipientDept").value) {
+        alert("請填寫完整寄件資訊！"); return;
+      }
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+    }
+
+    function goToStep1() { document.getElementById('step2').classList.add('hidden'); document.getElementById('step1').classList.remove('hidden'); }
+    function backToStep2() { document.getElementById('step3').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); }
+
+    function submitOrder() {
+      let detailsArr = [];
+      let total = 0;
+      menuData.forEach(cat => {
+        cat.items.forEach(item => {
+          if (cart[item.id] > 0) {
+            detailsArr.push(`${cat.category}(${item.name})x${cart[item.id]}`);
+            total += cart[item.id] * item.price;
+          }
+        });
+      });
+
+      const postData = {
+        senderName: document.getElementById("senderName").value,
+        recipientName: document.getElementById("recipientName").value,
+        recipientDept: document.getElementById("recipientDept").value,
+        orderDetails: detailsArr.join(', '),
+        totalPrice: total
       };
 
-      // 3. 這是你的專屬 GAS 網址！
-      const url = "https://script.google.com/macros/s/AKfycbz3NydvAFlSYlD4Fl12RuVQiIO9JS3PGVkAj2yWgxgffBevz_p1E2X6kIPLxrWXxivp0A/exec";
-
+      const url = "你的_GAS_網址_貼在這裡"; // <--- 記得換成你的網址
       const btn = document.getElementById("submitBtn");
-      btn.innerText = "傳送中...";
-      btn.disabled = true; // 避免重複點擊
+      btn.innerText = "訂單傳送中... 🚀"; btn.disabled = true;
 
-      // 4. 使用 fetch 發送 API 請求
       fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8", 
-        },
-        body: JSON.stringify(data)
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(postData)
       })
-      .then(response => response.json())
+      .then(res => res.json())
       .then(result => {
         if (result.status === "success") {
-          alert("資料成功寫入 Google Sheet！");
-          // 清空輸入框
-          document.getElementById("name").value = "";
-          document.getElementById("phone").value = "";
-        } else {
-          alert("寫入失敗：" + result.message);
-        }
+          alert("傳情訂單已成功送出！"); window.location.reload(); 
+        } else { alert("寫入失敗：" + result.message); }
       })
-      .catch(error => {
-        alert("發生錯誤，請檢查網路狀態或瀏覽器 Console。");
-        console.error(error);
-      })
-      .finally(() => {
-        btn.innerText = "送出資料";
-        btn.disabled = false;
-      });
+      .catch(error => { alert("網路錯誤，請稍後再試。"); console.error(error); })
+      .finally(() => { btn.innerText = "確認資訊無誤，送出訂單 🚀"; btn.disabled = false; });
     }
+
+    init();
   </script>
 </body>
 </html>
